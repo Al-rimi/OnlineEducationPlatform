@@ -8,7 +8,11 @@
         <result property="email" column="email" />
     </resultMap>
 
+
     <select id="selectUserById" resultMap="UserResultMap"> SELECT * FROM users WHERE id = #{id} </select>
+
+    <select id="selectUserByUsername" resultMap="UserResultMap"> SELECT * FROM users WHERE username
+        = #{username} </select>
 
     <select id="selectAllUsers" resultMap="UserResultMap"> SELECT * FROM users </select>
 

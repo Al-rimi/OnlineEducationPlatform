@@ -13,4 +13,11 @@ public interface UserService {
     int updateUser(User user);
 
     int deleteUser(Integer id);
+
+    // For authentication and registration
+    User getUserByUsername(String username);
+
+    boolean checkPassword(String rawPassword, String encodedPassword);
+
+    void registerUser(User user);
 }

@@ -1,10 +1,10 @@
 package com.example.onlineeducationplatform.mapper;
 
 import com.example.onlineeducationplatform.model.User;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 
-@Repository
+@Mapper
 public interface UserMapper {
     User selectUserById(Integer id);
 
@@ -15,4 +15,7 @@ public interface UserMapper {
     int updateUser(User user);
 
     int deleteUser(Integer id);
+
+    // For authentication
+    User selectUserByUsername(String username);
 }

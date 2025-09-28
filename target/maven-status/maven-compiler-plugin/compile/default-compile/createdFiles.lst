@@ -1,0 +1,6 @@
+com\example\onlineeducationplatform\config\SecurityConfig.class
+com\example\onlineeducationplatform\service\UserService.class
+com\example\onlineeducationplatform\OnlineEducationPlatformApplication.class
+com\example\onlineeducationplatform\model\User.class
+com\example\onlineeducationplatform\mapper\UserMapper.class
+com\example\onlineeducationplatform\service\impl\UserServiceImpl.class
