@@ -4,9 +4,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.onlineeducationplatform.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -15,18 +16,22 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .authorizeRequests()
-                .antMatchers("/", "/index.html", "/favicon.ico", "/api/users/login", "/api/users/register").permitAll()
-                .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers(org.springframework.http.HttpMethod.GET, "/api/users").permitAll()
-                .anyRequest().authenticated()
+                .cors()
                 .and()
-                .cors();
+                .authorizeRequests()
+                .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers("/", "/index.html", "/favicon.ico").permitAll()
+                .antMatchers("/api/users/login", "/api/users/register").permitAll()
+                // public read-only catalog endpoints
+                .antMatchers(org.springframework.http.HttpMethod.GET, "/api/categories/**").permitAll()
+                .antMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/**").permitAll()
+                .antMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/*/videos").permitAll()
+                .antMatchers(org.springframework.http.HttpMethod.GET, "/api/videos/**").permitAll()
+                .anyRequest().authenticated();
+
+        // Add JWT filter
+        http.addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }

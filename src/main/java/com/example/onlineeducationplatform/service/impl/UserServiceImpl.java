@@ -1,6 +1,7 @@
 package com.example.onlineeducationplatform.service.impl;
 
 import com.example.onlineeducationplatform.mapper.UserMapper;
+import com.example.onlineeducationplatform.mapper.RoleMapper;
 import com.example.onlineeducationplatform.model.User;
 import com.example.onlineeducationplatform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,24 +14,53 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private RoleMapper roleMapper;
+
+    // Note: Passwords are stored in plain text per user request. This is NOT
+    // recommended for production.
 
     @Override
     public User getUserById(Integer id) {
-        return userMapper.selectUserById(id);
+        User u = userMapper.selectUserById(id);
+        if (u != null) {
+            u.setPassword(null); // hide password on fetch
+            u.setRoles(roleMapper.selectRoleNamesByUserId(u.getId()));
+        }
+        return u;
     }
 
     @Override
     public List<User> getAllUsers() {
-        return userMapper.selectAllUsers();
+        List<User> list = userMapper.selectAllUsers();
+        if (list != null) {
+            for (User u : list) {
+                if (u != null) {
+                    u.setPassword(null);
+                    u.setRoles(roleMapper.selectRoleNamesByUserId(u.getId()));
+                }
+            }
+        }
+        return list;
     }
 
     @Override
     public int addUser(User user) {
-        return userMapper.insertUser(user);
+        // Store password as-is (no hashing)
+        int rows = userMapper.insertUser(user);
+        // assign default USER role if exists
+        if (rows > 0) {
+            Integer roleId = roleMapper.selectRoleIdByName("USER");
+            if (roleId != null && user.getId() != null) {
+                roleMapper.insertUserRole(user.getId(), roleId);
+            }
+        }
+        return rows;
     }
 
     @Override
     public int updateUser(User user) {
+        // Store password as-is (no hashing)
         return userMapper.updateUser(user);
     }
 
@@ -41,29 +71,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserByUsername(String username) {
-        // Implement a method in UserMapper for this, or use selectAllUsers and filter
-        // (not efficient)
-        List<User> users = userMapper.selectAllUsers();
-        for (User user : users) {
-            if (user.getUsername().equals(username)) {
-                return user;
-            }
+        User u = userMapper.selectUserByUsername(username);
+        if (u != null) {
+            u.setRoles(roleMapper.selectRoleNamesByUserId(u.getId()));
         }
-        return null;
+        return u;
     }
 
     @Override
-    public boolean checkPassword(String rawPassword, String encodedPassword) {
-        // Use BCryptPasswordEncoder for encoded passwords
-        org.springframework.security.crypto.password.PasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-        return encoder.matches(rawPassword, encodedPassword);
+    public boolean checkPassword(String rawPassword, String storedPassword) {
+        // Plain text comparison (no hashing)
+        if (rawPassword == null && storedPassword == null)
+            return true;
+        if (rawPassword == null || storedPassword == null)
+            return false;
+        return rawPassword.equals(storedPassword);
     }
 
     @Override
     public void registerUser(User user) {
-        // Encode password before saving
-        org.springframework.security.crypto.password.PasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
-        user.setPassword(encoder.encode(user.getPassword()));
+        // Store password as-is (no hashing)
         userMapper.insertUser(user);
+        Integer roleId = roleMapper.selectRoleIdByName("USER");
+        if (roleId != null && user.getId() != null) {
+            roleMapper.insertUserRole(user.getId(), roleId);
+        }
     }
 }

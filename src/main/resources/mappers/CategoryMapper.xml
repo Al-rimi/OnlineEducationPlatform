@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlineeducationplatform.mapper.CategoryMapper">
+    <resultMap id="CategoryResult" type="com.example.onlineeducationplatform.model.Category">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+    </resultMap>
+
+    <select id="selectById" resultMap="CategoryResult">SELECT * FROM categories WHERE id=#{id}</select>
+    <select id="selectAll" resultMap="CategoryResult">SELECT * FROM categories ORDER BY name</select>
+    <insert id="insert" parameterType="com.example.onlineeducationplatform.model.Category"
+        useGeneratedKeys="true" keyProperty="id">INSERT INTO categories(name) VALUES(#{name})</insert>
+    <update id="update" parameterType="com.example.onlineeducationplatform.model.Category">UPDATE
+        categories SET name=#{name} WHERE id=#{id}</update>
+    <delete id="delete" parameterType="int">DELETE FROM categories WHERE id=#{id}</delete>
+</mapper>

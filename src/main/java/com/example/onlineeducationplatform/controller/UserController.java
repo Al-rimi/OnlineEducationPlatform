@@ -10,6 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
+import com.example.onlineeducationplatform.security.JwtUtil;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
@@ -86,21 +90,19 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-}
 
-// JWT utility and AuthResponse class for token handling
-class JwtUtil {
-    private static final String SECRET_KEY = "secretKey123456";
-
-    public static String generateToken(String username) {
-        long nowMillis = System.currentTimeMillis();
-        long expMillis = nowMillis + 24 * 60 * 60 * 1000; // 1 day
-        return io.jsonwebtoken.Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new java.util.Date(nowMillis))
-                .setExpiration(new java.util.Date(expMillis))
-                .signWith(io.jsonwebtoken.SignatureAlgorithm.HS256, SECRET_KEY)
-                .compact();
+    // Get current authenticated user info
+    @GetMapping("/me")
+    public ResponseEntity<User> me() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getName() == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        User user = userService.getUserByUsername(auth.getName());
+        if (user == null)
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        // hide password
+        user.setPassword(null);
+        return ResponseEntity.ok(user);
     }
 }
 

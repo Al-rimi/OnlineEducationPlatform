@@ -16,8 +16,9 @@
 
     <select id="selectAllUsers" resultMap="UserResultMap"> SELECT * FROM users </select>
 
-    <insert id="insertUser" parameterType="com.example.onlineeducationplatform.model.User"> INSERT
-        INTO users (username, password, email) VALUES (#{username}, #{password}, #{email}) </insert>
+    <insert id="insertUser" parameterType="com.example.onlineeducationplatform.model.User"
+        useGeneratedKeys="true" keyProperty="id"> INSERT INTO users (username, password, email)
+        VALUES (#{username}, #{password}, #{email}) </insert>
 
     <update id="updateUser" parameterType="com.example.onlineeducationplatform.model.User"> UPDATE
         users SET username=#{username}, password=#{password}, email=#{email} WHERE id=#{id} </update>

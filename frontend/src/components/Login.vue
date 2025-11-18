@@ -12,19 +12,24 @@
 <script setup>
 import { ref } from 'vue';
 import api from '../services/api';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { useToast } from '../stores/toast';
 
 const router = useRouter();
+const route = useRoute();
 const username = ref('');
 const password = ref('');
 const error = ref('');
+const toast = useToast();
 
 async function login() {
   error.value = '';
   try {
     const { data } = await api.post('/api/users/login', { username: username.value, password: password.value });
     localStorage.setItem('token', data.token);
-    router.push('/');
+    toast.success('Welcome back!');
+    const redirect = route.query.redirect || '/';
+    router.push(redirect);
   } catch (e) {
     error.value = 'Invalid credentials';
   }

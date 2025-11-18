@@ -5,6 +5,8 @@ public class User {
     private String username;
     private String password;
     private String email;
+    // transient roles list for authorization
+    private java.util.List<String> roles;
 
     public Integer getId() {
         return id;
@@ -36,5 +38,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public java.util.List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(java.util.List<String> roles) {
+        this.roles = roles;
     }
 }

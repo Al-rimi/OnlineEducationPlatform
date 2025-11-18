@@ -81,6 +81,17 @@ mybatis.type-aliases-package=com.example.onlineeducationplatform.model
 - MySQL database: `online_education`
 - User table: `users` (id, username, password, email)
 - See `mappers/UserMapper.xml` for SQL
+- Schema SQL: `src/main/resources/db/schema.sql`
+
+### Apply the schema (MySQL client)
+
+If you have the MySQL CLI installed, run:
+
+```
+mysql -u root -p < src/main/resources/db/schema.sql
+```
+
+Enter your password (e.g., `000000` per your setup). This creates the database and `users` table.
 
 ## Development & Debugging
 
@@ -191,6 +202,28 @@ The UI is intentionally minimal to focus on experiment objectives: separation, A
 - Extract JWT secret to environment variable.
 - Add refresh token mechanism & token expiry handling on frontend.
 - Docker Compose for full stack.
+
+## New Pages and Sample Data
+
+### Pages added
+
+- Dashboard (`/`): shows current user info and total users (requires login)
+- Users (`/users`): list of users (requires login)
+- Add/Edit User (`/add`, `/edit/:id`): protected forms
+- My Profile (`/profile`): reads from `/api/users/me` (requires login)
+- Not Found: catch-all for unknown routes
+
+Global toasts show success/error messages. Unauthorized requests trigger a toast and redirect to login. After login, you’re sent back to the original page you wanted.
+
+### Sample data seeding
+
+On backend startup, if the `users` table is empty, three sample users are created automatically:
+
+- `alice` / `alice123`
+- `bob` / `bob123`
+- `charlie` / `charlie123`
+
+Passwords are stored securely (BCrypt). If the table already has users, seeding is skipped.
 
 ## Git & Version Control
 

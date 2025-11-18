@@ -1,41 +1,43 @@
 <template>
-  <div class="layout">
-    <header>
-      <h1>Online Education Platform</h1>
-      <nav>
-        <router-link to="/">Users</router-link>
-        <router-link to="/add">Add User</router-link>
-        <router-link to="/login" v-if="!token">Login</router-link>
-        <router-link to="/register" v-if="!token">Register</router-link>
-        <button v-if="token" @click="logout">Logout</button>
-      </nav>
-    </header>
-    <main>
-      <router-view />
-    </main>
-  </div>
+  <RouterView v-slot="{ Component }">
+    <component :is="layout">
+      <component :is="Component" />
+    </component>
+  </RouterView>
+  
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { computed } from 'vue';
+import { useRoute, RouterView } from 'vue-router';
+import AppShell from './layouts/AppShell.vue';
+import AuthShell from './layouts/AuthShell.vue';
 
-const router = useRouter();
-const token = ref(localStorage.getItem('token'));
-
-function logout() {
-  localStorage.removeItem('token');
-  token.value = null;
-  router.push('/login');
-}
+const route = useRoute();
+const layout = computed(() => route.meta.layout === 'auth' ? AuthShell : AppShell);
 </script>
 
-<style scoped>
-.layout { font-family: system-ui, Arial, sans-serif; max-width: 900px; margin: 0 auto; }
-header { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; }
-nav { display: flex; gap: 12px; align-items: center; }
-nav a { text-decoration: none; color: #1a4b84; font-weight: 600; }
-nav a.router-link-active { border-bottom: 2px solid #1a4b84; }
-button { background:#c62828; color:#fff; border:none; padding:6px 12px; cursor:pointer; border-radius:4px; }
-main { margin-top: 20px; }
+<style>
+/* Root styles and design system */
+:root{
+  --bg:#0e1116; /* page background gradient start (used in auth) */
+  --surface-1:#ffffff;
+  --surface-2:#fcfcfc;
+  --border:#e9e9ec;
+  --text-1:#111827;
+  --text-2:#374151;
+  --primary:#2563eb;
+  --primary-contrast:#fff;
+}
+html,body,#app{height:100%}
+body{margin:0;background:var(--surface-2);color:var(--text-1);font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";}
+.container{max-width:1100px;margin:0 auto;padding:0 16px}
+a{color:var(--primary)}
+input,button{font:inherit}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff}
+label{display:flex;flex-direction:column;gap:6px}
+form{display:grid;gap:12px}
+button{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--primary);color:var(--primary-contrast);cursor:pointer}
+button.secondary{background:#f6f8fb;color:var(--text-1)}
+.card{border:1px solid var(--border);border-radius:16px;background:#fff;padding:16px}
 </style>
