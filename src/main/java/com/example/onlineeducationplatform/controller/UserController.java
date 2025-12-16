@@ -26,12 +26,11 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody User loginUser) {
         User user = userService.getUserByUsername(loginUser.getUsername());
         if (user != null && userService.checkPassword(loginUser.getPassword(), user.getPassword())) {
-            // Generate JWT token
-            String token = JwtUtil.generateToken(user.getUsername());
-            return ResponseEntity.ok().body(new AuthResponse(token));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
+            String token = JwtUtil.generateToken(user.getUsername(), user.getRoles());
+            user.setPassword(null);
+            return ResponseEntity.ok().body(new AuthResponse(token, new UserPayload(user)));
         }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
     }
 
     // Register endpoint
@@ -108,9 +107,11 @@ public class UserController {
 
 class AuthResponse {
     private String token;
+    private UserPayload user;
 
-    public AuthResponse(String token) {
+    public AuthResponse(String token, UserPayload user) {
         this.token = token;
+        this.user = user;
     }
 
     public String getToken() {
@@ -119,5 +120,43 @@ class AuthResponse {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public UserPayload getUser() {
+        return user;
+    }
+
+    public void setUser(UserPayload user) {
+        this.user = user;
+    }
+}
+
+class UserPayload {
+    private Integer id;
+    private String username;
+    private String email;
+    private java.util.List<String> roles;
+
+    public UserPayload(User user) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.roles = user.getRoles();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public java.util.List<String> getRoles() {
+        return roles;
     }
 }

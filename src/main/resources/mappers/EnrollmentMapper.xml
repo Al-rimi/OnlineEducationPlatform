@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlineeducationplatform.mapper.EnrollmentMapper">
+    <resultMap id="EnrollmentResult" type="com.example.onlineeducationplatform.model.Enrollment">
+        <id property="id" column="id" />
+        <result property="userId" column="user_id" />
+        <result property="courseId" column="course_id" />
+        <result property="enrolledAt" column="enrolled_at" />
+    </resultMap>
+
+    <insert id="insert"> INSERT INTO enrollments(user_id, course_id) VALUES(#{userId}, #{courseId}) </insert>
+
+    <select id="select" resultMap="EnrollmentResult"> SELECT * FROM enrollments WHERE
+        user_id=#{userId} AND course_id=#{courseId} </select>
+
+    <select id="selectByUser" resultMap="EnrollmentResult"> SELECT * FROM enrollments WHERE
+        user_id=#{userId} ORDER BY enrolled_at DESC </select>
+</mapper>

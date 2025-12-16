@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlineeducationplatform.mapper.QuizResultMapper">
+
+    <select id="selectResultsByQuizId" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.QuizResult"> SELECT * FROM
+        quiz_results WHERE quiz_id = #{quizId} ORDER BY taken_at DESC </select>
+
+    <select id="selectResultByQuizAndUser"
+        resultType="com.example.onlineeducationplatform.model.QuizResult"> SELECT * FROM
+        quiz_results WHERE quiz_id = #{quizId} AND user_id = #{userId} </select>
+
+    <select id="selectResultById" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.QuizResult"> SELECT * FROM
+        quiz_results WHERE id = #{id} </select>
+
+    <insert id="insertResult" parameterType="com.example.onlineeducationplatform.model.QuizResult"
+        useGeneratedKeys="true" keyProperty="id"> INSERT INTO quiz_results (quiz_id, user_id, score,
+        answers) VALUES (#{quizId}, #{userId}, #{score}, #{answers}) </insert>
+
+    <update id="updateResult" parameterType="com.example.onlineeducationplatform.model.QuizResult">
+        UPDATE quiz_results SET score = #{score}, answers = #{answers} WHERE id = #{id} </update>
+
+    <delete id="deleteResult" parameterType="int"> DELETE FROM quiz_results WHERE id = #{id} </delete>
+
+</mapper>

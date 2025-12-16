@@ -5,7 +5,7 @@ public class User {
     private String username;
     private String password;
     private String email;
-    // transient roles list for authorization
+    // roles list for authorization
     private java.util.List<String> roles;
 
     public Integer getId() {

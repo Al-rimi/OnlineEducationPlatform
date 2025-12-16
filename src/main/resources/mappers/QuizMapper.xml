@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlineeducationplatform.mapper.QuizMapper">
+
+    <select id="selectAllQuizzes" resultType="com.example.onlineeducationplatform.model.Quiz">
+        SELECT * FROM quizzes ORDER BY created_at DESC </select>
+
+    <select id="selectQuizzesByCourseId" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.Quiz"> SELECT * FROM quizzes WHERE
+        course_id = #{courseId} ORDER BY created_at DESC </select>
+
+    <select id="selectQuizById" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.Quiz"> SELECT * FROM quizzes WHERE id
+        = #{id} </select>
+
+    <insert id="insertQuiz" parameterType="com.example.onlineeducationplatform.model.Quiz"
+        useGeneratedKeys="true" keyProperty="id"> INSERT INTO quizzes (course_id, title) VALUES
+        (#{courseId}, #{title}) </insert>
+
+    <update id="updateQuiz" parameterType="com.example.onlineeducationplatform.model.Quiz"> UPDATE
+        quizzes SET title = #{title} WHERE id = #{id} </update>
+
+    <delete id="deleteQuiz" parameterType="int"> DELETE FROM quizzes WHERE id = #{id} </delete>
+
+</mapper>

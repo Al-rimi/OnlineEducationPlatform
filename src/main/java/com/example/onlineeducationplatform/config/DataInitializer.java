@@ -17,16 +17,15 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         try {
-            log.info("🚀 Starting application with comprehensive sample data...");
-            log.info("📚 Database contains rich sample data including:");
-            log.info("   - 15 sample users (admin, instructors, students)");
-            log.info("   - 25+ courses across 13 categories");
-            log.info("   - 40+ video lessons");
-            log.info("   - Interactive quizzes and assignments");
-            log.info("   - Discussion forums and messages");
+            log.info("🚀 Starting application with simple demo data...");
+            log.info("📚 Database contains clean sample data including:");
+            log.info("   - 3 sample users (admin, teacher, student)");
+            log.info("   - 3 courses across 3 categories");
+            log.info("   - Basic video lessons and assignments");
+            log.info("   - Simple quizzes and discussions");
             log.info("   - Learning progress tracking");
             log.info("✅ Application ready! Visit http://localhost:8081");
-            log.info("🎯 Try logging in with: admin/admin123 or john_doe/password123");
+            log.info("🎯 Try logging in with: admin/admin123 or teacher/teacher123 or student/student123");
         } catch (Exception e) {
             log.warn("Data initialization info display failed: {}", e.getMessage());
         }

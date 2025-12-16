@@ -12,9 +12,16 @@ public interface CourseService {
 
     List<Course> search(String keyword);
 
+    List<Course> getEnrolledCourses(Integer userId);
+
     int create(Course course);
 
     int update(Course course);
 
     int delete(Integer id);
+
+    // Enrollment and purchase actions
+    boolean enrollUser(Integer courseId, String username);
+
+    boolean purchaseCourse(Integer courseId, String username);
 }

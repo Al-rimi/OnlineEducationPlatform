@@ -73,7 +73,11 @@ public class UserServiceImpl implements UserService {
     public User getUserByUsername(String username) {
         User u = userMapper.selectUserByUsername(username);
         if (u != null) {
-            u.setRoles(roleMapper.selectRoleNamesByUserId(u.getId()));
+            java.util.List<String> roles = roleMapper.selectRoleNamesByUserId(u.getId());
+            if (roles == null) {
+                roles = new java.util.ArrayList<>();
+            }
+            u.setRoles(roles);
         }
         return u;
     }

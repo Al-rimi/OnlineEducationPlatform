@@ -1,6 +1,7 @@
 package com.example.onlineeducationplatform.model;
 
 import java.util.Date;
+import java.math.BigDecimal;
 
 public class Course {
     private Integer id;
@@ -9,6 +10,10 @@ public class Course {
     private Integer categoryId;
     private Integer createdBy;
     private String status; // DRAFT, PENDING_REVIEW, PUBLISHED, REJECTED
+    private BigDecimal price; // 0.00 means free
+    private String currency; // e.g., USD
+    private String visibility; // PUBLIC, ENROLLED, ROLE_BASED
+    private String visibleRole; // ADMIN, TEACHER, USER (nullable)
     private Date createdAt;
     private Date updatedAt;
 
@@ -58,6 +63,38 @@ public class Course {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getVisibility() {
+        return visibility;
+    }
+
+    public void setVisibility(String visibility) {
+        this.visibility = visibility;
+    }
+
+    public String getVisibleRole() {
+        return visibleRole;
+    }
+
+    public void setVisibleRole(String visibleRole) {
+        this.visibleRole = visibleRole;
     }
 
     public Date getCreatedAt() {

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlineeducationplatform.mapper.AssignmentSubmissionMapper">
+
+    <select id="selectSubmissionsByAssignmentId" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.AssignmentSubmission"> SELECT * FROM
+        assignment_submissions WHERE assignment_id = #{assignmentId} ORDER BY submitted_at DESC </select>
+
+    <select id="selectSubmissionById" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.AssignmentSubmission"> SELECT * FROM
+        assignment_submissions WHERE id = #{id} </select>
+
+    <select id="selectSubmissionByAssignmentAndUser"
+        resultType="com.example.onlineeducationplatform.model.AssignmentSubmission"> SELECT * FROM
+        assignment_submissions WHERE assignment_id = #{assignmentId} AND user_id = #{userId} </select>
+
+    <insert id="insertSubmission"
+        parameterType="com.example.onlineeducationplatform.model.AssignmentSubmission"
+        useGeneratedKeys="true" keyProperty="id"> INSERT INTO assignment_submissions (assignment_id,
+        user_id, content, file_url) VALUES (#{assignmentId}, #{userId}, #{content}, #{fileUrl}) </insert>
+
+    <update id="updateSubmission"
+        parameterType="com.example.onlineeducationplatform.model.AssignmentSubmission"> UPDATE
+        assignment_submissions SET content = #{content}, file_url = #{fileUrl}, grade = #{grade},
+        feedback = #{feedback} WHERE id = #{id} </update>
+
+    <delete id="deleteSubmission" parameterType="int"> DELETE FROM assignment_submissions WHERE id =
+        #{id} </delete>
+
+</mapper>

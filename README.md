@@ -16,7 +16,7 @@ OnlineEducationPlatform is a full-stack web application for online education, bu
 
 ## Tech Stack
 
-- Java 8+
+- Java 21
 - Spring Boot 2.7.x
 - Spring Security
 - MyBatis
@@ -57,8 +57,9 @@ mybatis.type-aliases-package=com.example.onlineeducationplatform.model
 ## Running the Project
 
 1. Build: `mvn clean package`
-2. Run: `java -jar target/OnlineEducationPlatform-1.0-SNAPSHOT.jar`
-3. API base URL: `http://localhost:8080/api/users`
+2. Run Dev: `mvn spring-boot:run` (backend on 8081)
+3. Frontend Dev: `cd frontend && npm install && npm run dev` (Vite on 5175)
+4. Open: `http://localhost:5175`
 
 ## API Endpoints
 
@@ -125,13 +126,13 @@ frontend/
 
 ### Development Run (Two Terminals)
 
-Backend (port 8081 after migration):
+Backend (port 8081):
 
 ```
 mvn spring-boot:run
 ```
 
-Frontend (port 5173 with proxy to backend):
+Frontend (port 5175 with proxy to backend):
 
 ```
 cd frontend
@@ -139,7 +140,7 @@ npm install
 npm run dev
 ```
 
-Open: http://localhost:5173
+Open: http://localhost:5175
 
 ### Production Build (Frontend)
 
@@ -215,15 +216,15 @@ The UI is intentionally minimal to focus on experiment objectives: separation, A
 
 Global toasts show success/error messages. Unauthorized requests trigger a toast and redirect to login. After login, you’re sent back to the original page you wanted.
 
-### Sample data seeding
+### Sample Accounts (Demo)
 
-On backend startup, if the `users` table is empty, three sample users are created automatically:
+The database is auto-initialized with rich sample data and clear demo accounts for each role:
 
-- `alice` / `alice123`
-- `bob` / `bob123`
-- `charlie` / `charlie123`
+- Admin: `admin` / `admin123`
+- Teacher: `teacher` / `teacher123`
+- Student: `student` / `student123`
 
-Passwords are stored securely (BCrypt). If the table already has users, seeding is skipped.
+Additional users exist (e.g., `john_doe`, `jane_smith`) to populate enrollments, purchases, and activities.
 
 ## Git & Version Control
 

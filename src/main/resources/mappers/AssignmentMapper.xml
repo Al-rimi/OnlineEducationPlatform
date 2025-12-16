@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.onlineeducationplatform.mapper.AssignmentMapper">
+
+    <select id="selectAllAssignments"
+        resultType="com.example.onlineeducationplatform.model.Assignment"> SELECT * FROM assignments
+        ORDER BY created_at DESC </select>
+
+    <select id="selectAssignmentsByCourseId" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.Assignment"> SELECT * FROM assignments
+        WHERE course_id = #{courseId} ORDER BY created_at DESC </select>
+
+    <select id="selectAssignmentById" parameterType="int"
+        resultType="com.example.onlineeducationplatform.model.Assignment"> SELECT * FROM assignments
+        WHERE id = #{id} </select>
+
+    <insert id="insertAssignment"
+        parameterType="com.example.onlineeducationplatform.model.Assignment" useGeneratedKeys="true"
+        keyProperty="id"> INSERT INTO assignments (course_id, title, description, due_date,
+        file_url) VALUES (#{courseId}, #{title}, #{description}, #{dueDate}, #{fileUrl}) </insert>
+
+    <update id="updateAssignment"
+        parameterType="com.example.onlineeducationplatform.model.Assignment"> UPDATE assignments SET
+        title = #{title}, description = #{description}, due_date = #{dueDate}, file_url = #{fileUrl}
+        WHERE id = #{id} </update>
+
+    <delete id="deleteAssignment" parameterType="int"> DELETE FROM assignments WHERE id = #{id} </delete>
+
+</mapper>
