@@ -1,12 +1,27 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "users")
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column
     private String email;
-    // roles list for authorization
-    private java.util.List<String> roles;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
 
     public Integer getId() {
         return id;
@@ -40,11 +55,11 @@ public class User {
         this.email = email;
     }
 
-    public java.util.List<String> getRoles() {
+    public List<Role> getRoles() {
         return roles;
     }
 
-    public void setRoles(java.util.List<String> roles) {
+    public void setRoles(List<Role> roles) {
         this.roles = roles;
     }
 }
