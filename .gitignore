@@ -1,0 +1,47 @@
+# Java/Maven
+/target/
+*.class
+*.log
+*.war
+*.jar
+*.iml
+
+# IDEs
+/.idea/
+*.iws
+*.ipr
+*.iml
+*.swp
+*.swo
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db
+
+# OS
+ehthumbs.db
+Icon?
+
+# VSCode
+.vscode/
+
+# Node/Vite/Vue
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/.env.*
+
+# Database dumps/backups
+*.sql
+*.sqlite
+*.db
+
+# Misc
+*.log
+*.pid
+*.seed
+*.orig
+
+# Sensitive
+application.properties
+jdbc.properties
