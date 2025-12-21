@@ -9,9 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import java.util.List;
 import java.util.Set;
-import java.util.HashSet;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -55,7 +55,20 @@ public class CourseController {
         return ResponseEntity.ok(enrolled);
     }
 
+    @GetMapping("/my-courses")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
+    public ResponseEntity<List<Course>> getMyCourses() {
+        User current = getCurrentUser();
+        if (current == null)
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        if (!hasAnyRole(current, "ADMIN", "TEACHER"))
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        List<Course> courses = courseService.getByTeacher(current.getId());
+        return ResponseEntity.ok(courses);
+    }
+
     @PostMapping
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<Course> create(@RequestBody Course course) {
         User current = getCurrentUser();
         if (current == null)
@@ -76,6 +89,7 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<Course> update(@PathVariable Integer id, @RequestBody Course course) {
         course.setId(id);
         User current = getCurrentUser();
@@ -88,6 +102,7 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         User current = getCurrentUser();
         if (current == null)
@@ -99,22 +114,24 @@ public class CourseController {
     }
 
     @PostMapping("/{id}/enroll")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<Void> enroll(@PathVariable Integer id) {
         User current = getCurrentUser();
         if (current == null)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        if (!hasAnyRole(current, "TEACHER", "USER"))
+        if (!hasAnyRole(current, "TEACHER", "STUDENT"))
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         boolean ok = courseService.enrollUser(id, current.getUsername());
         return ok ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/{id}/purchase")
+    @PreAuthorize("hasRole('STUDENT') or hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<Void> purchase(@PathVariable Integer id) {
         User current = getCurrentUser();
         if (current == null)
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        if (!hasAnyRole(current, "TEACHER", "USER"))
+        if (!hasAnyRole(current, "TEACHER", "STUDENT"))
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         boolean ok = courseService.purchaseCourse(id, current.getUsername());
         return ok ? new ResponseEntity<>(HttpStatus.NO_CONTENT) : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -133,7 +150,8 @@ public class CourseController {
     private boolean hasAnyRole(User u, String... roles) {
         if (u == null || u.getRoles() == null)
             return false;
-        Set<String> have = new HashSet<>(u.getRoles());
+        Set<String> have = u.getRoles().stream().map(role -> role.getName())
+                .collect(java.util.stream.Collectors.toSet());
         for (String r : roles) {
             if (have.contains(r))
                 return true;

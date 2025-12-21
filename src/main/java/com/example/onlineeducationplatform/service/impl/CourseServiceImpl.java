@@ -54,6 +54,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public List<Course> getByTeacher(Integer teacherId) {
+        return courseMapper.selectByTeacher(teacherId);
+    }
+
+    @Override
     public int create(Course course) {
         return courseMapper.insert(course);
     }

@@ -18,4 +18,8 @@ public interface UserMapper {
 
     // For authentication
     User selectUserByUsername(String username);
+
+    void insertUserRole(int userId, String roleName);
+
+    void deleteUserRoles(int userId);
 }

@@ -1,16 +1,41 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
+@Entity
+@Table(name = "discussions")
 public class Discussion {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer courseId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+    // For controller compatibility
+    public Integer getCourseId() {
+        return course != null ? course.getId() : null;
+    }
+    public void setCourseId(Integer courseId) {
+        if (this.course == null) this.course = new Course();
+        this.course.setId(courseId);
+    }
+
+    @Column(name = "user_id")
     private Integer userId;
+
     private String title;
     private String content;
+
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
-    private List<DiscussionReply> replies;
+
+    // Replies can be mapped as OneToMany if DiscussionReply is an entity
+    // @OneToMany(mappedBy = "discussion", cascade = CascadeType.ALL, orphanRemoval
+    // = true)
+    // private List<DiscussionReply> replies;
 
     public Integer getId() {
         return id;
@@ -20,12 +45,12 @@ public class Discussion {
         this.id = id;
     }
 
-    public Integer getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Integer courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public Integer getUserId() {
@@ -59,12 +84,7 @@ public class Discussion {
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
-
-    public List<DiscussionReply> getReplies() {
-        return replies;
-    }
-
-    public void setReplies(List<DiscussionReply> replies) {
-        this.replies = replies;
-    }
+    // public List<DiscussionReply> getReplies() { return replies; }
+    // public void setReplies(List<DiscussionReply> replies) { this.replies =
+    // replies; }
 }

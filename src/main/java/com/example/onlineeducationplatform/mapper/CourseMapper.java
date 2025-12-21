@@ -22,4 +22,6 @@ public interface CourseMapper {
     List<Course> searchByTitle(@Param("keyword") String keyword);
 
     List<Course> selectEnrolledCourses(@Param("userId") Integer userId);
+
+    List<Course> selectByTeacher(@Param("teacherId") Integer teacherId);
 }

@@ -4,21 +4,38 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { UsersApi } from '../services/api';
 
 const router = useRouter();
 
-onMounted(async () => {
+onMounted(() => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    router.replace('/login');
+    return;
+  }
+
+  // Check if token is expired
   try {
-    const cached = localStorage.getItem('user');
-    const cachedUser = cached ? JSON.parse(cached) : null;
-    const { data: fetchedUser } = await UsersApi.me();
-    const user = fetchedUser || cachedUser;
-    const roles = (user && user.roles) || [];
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    const currentTime = Date.now() / 1000;
+    
+    if (payload.exp < currentTime) {
+      console.warn('Token expired during role redirect, clearing data');
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      router.replace('/login');
+      return;
+    }
+
+    const roles = payload.roles || [];
     const target = pickHome(roles);
-    localStorage.setItem('user', JSON.stringify(user));
     router.replace(target);
   } catch (e) {
+    console.error('Token parsing error during role redirect:', e);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     router.replace('/login');
   }
 });

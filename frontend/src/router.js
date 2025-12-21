@@ -24,30 +24,30 @@ import QuizTaking from './components/QuizTaking.vue';
 
 const routes = [
   { path: '/', component: RoleRedirect, meta: { requiresAuth: true } },
-  { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true } },
-  { path: '/teacher', component: TeacherDashboard, meta: { requiresAuth: true } },
-  { path: '/student', component: StudentDashboard, meta: { requiresAuth: true } },
-  { path: '/users', component: UserList, meta: { requiresAuth: true } },
-  { path: '/add', component: UserForm, meta: { requiresAuth: true } },
-  { path: '/edit/:id', component: UserForm, props: true, meta: { requiresAuth: true } },
-  { path: '/user/:id', component: UserDetail, props: true },
+  { path: '/admin', component: AdminDashboard, meta: { requiresAuth: true, requiresRole: 'ADMIN' } },
+  { path: '/teacher', component: TeacherDashboard, meta: { requiresAuth: true, requiresRole: 'TEACHER' } },
+  { path: '/student', component: StudentDashboard, meta: { requiresAuth: true, requiresRole: 'STUDENT' } },
+  { path: '/users', component: UserList, meta: { requiresAuth: true, requiresRole: 'ADMIN' } },
+  { path: '/add', component: UserForm, meta: { requiresAuth: true, requiresRole: 'ADMIN' } },
+  { path: '/edit/:id', component: UserForm, props: true, meta: { requiresAuth: true, requiresRole: 'ADMIN' } },
+  { path: '/user/:id', component: UserDetail, props: true, meta: { requiresAuth: true, requiresRole: 'ADMIN' } },
   { path: '/profile', component: Profile, meta: { requiresAuth: true } },
   // Public catalog routes
   { path: '/courses', component: Courses },
   { path: '/courses/:id', component: CourseDetail, props: true },
-  { path: '/courses/new', component: CourseForm, meta: { requiresAuth: true } },
-  { path: '/courses/:id/edit', component: CourseForm, props: true, meta: { requiresAuth: true } },
+  { path: '/courses/new', component: CourseForm, meta: { requiresAuth: true, requiresRole: 'TEACHER' } },
+  { path: '/courses/:id/edit', component: CourseForm, props: true, meta: { requiresAuth: true, requiresRole: 'TEACHER' } },
   { path: '/videos/:id', component: VideoPlayer, props: true },
   { path: '/assignments', component: Assignments, meta: { requiresAuth: true } },
-  { path: '/assignments/new', component: AssignmentForm, meta: { requiresAuth: true } },
-  { path: '/assignments/:id/edit', component: AssignmentForm, props: true, meta: { requiresAuth: true } },
+  { path: '/assignments/new', component: AssignmentForm, meta: { requiresAuth: true, requiresRole: 'TEACHER' } },
+  { path: '/assignments/:id/edit', component: AssignmentForm, props: true, meta: { requiresAuth: true, requiresRole: 'TEACHER' } },
   { path: '/courses/:courseId/assignments', component: Assignments, props: true, meta: { requiresAuth: true } },
-  { path: '/assignments/:id/submit', component: AssignmentSubmission, props: true, meta: { requiresAuth: true } },
+  { path: '/assignments/:id/submit', component: AssignmentSubmission, props: true, meta: { requiresAuth: true, requiresRole: 'STUDENT' } },
   { path: '/quizzes', component: Quizzes, meta: { requiresAuth: true } },
-  { path: '/quizzes/new', component: QuizForm, meta: { requiresAuth: true } },
-  { path: '/quizzes/:id/edit', component: QuizForm, props: true, meta: { requiresAuth: true } },
+  { path: '/quizzes/new', component: QuizForm, meta: { requiresAuth: true, requiresRole: 'TEACHER' } },
+  { path: '/quizzes/:id/edit', component: QuizForm, props: true, meta: { requiresAuth: true, requiresRole: 'TEACHER' } },
   { path: '/courses/:courseId/quizzes', component: Quizzes, props: true, meta: { requiresAuth: true } },
-  { path: '/quizzes/:id/take', component: QuizTaking, props: true, meta: { requiresAuth: true } },
+  { path: '/quizzes/:id/take', component: QuizTaking, props: true, meta: { requiresAuth: true, requiresRole: 'STUDENT' } },
   { path: '/login', component: AuthPage, props: { mode: 'login' }, meta: { layout: 'auth' } },
   { path: '/register', component: AuthPage, props: { mode: 'register' }, meta: { layout: 'auth' } },
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound }
@@ -64,6 +64,28 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !token) {
     toast.info('Please login to continue');
     return next({ path: '/login', query: { redirect: to.fullPath } });
+  }
+  if (to.meta.requiresRole) {
+    if (!token) {
+      toast.error('Access denied');
+      return next('/login');
+    }
+    try {
+      // JWT is base64url encoded, need to convert to base64 first
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(atob(base64));
+      const roles = payload.roles || [];
+      if (!roles.includes(to.meta.requiresRole)) {
+        toast.error('Access denied: Insufficient permissions');
+        return next('/');
+      }
+    } catch (e) {
+      console.error('Token parsing error:', e);
+      toast.error('Invalid token');
+      localStorage.removeItem('token');
+      return next('/login');
+    }
   }
   next();
 });

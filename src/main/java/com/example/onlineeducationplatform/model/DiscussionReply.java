@@ -1,12 +1,20 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@Entity
+@Table(name = "discussion_replies")
 public class DiscussionReply {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "discussion_id")
     private Integer discussionId;
+    @Column(name = "user_id")
     private Integer userId;
     private String content;
+    @Column(name = "created_at")
     private Date createdAt;
 
     public Integer getId() {

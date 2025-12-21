@@ -1,11 +1,19 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@Entity
+@Table(name = "enrollments")
 public class Enrollment {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "user_id")
     private Integer userId;
+    @Column(name = "course_id")
     private Integer courseId;
+    @Column(name = "enrolled_at")
     private Date enrolledAt;
 
     public Integer getId() {

@@ -1,22 +1,41 @@
 package com.example.onlineeducationplatform.model;
 
-import java.util.Date;
+import javax.persistence.*;
 import java.math.BigDecimal;
+import java.util.Date;
 
+@Entity
+@Table(name = "courses")
 public class Course {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private String title;
     private String description;
+
+    @Column(name = "category_id")
     private Integer categoryId;
+
+    @Column(name = "created_by")
     private Integer createdBy;
+
     private String status; // DRAFT, PENDING_REVIEW, PUBLISHED, REJECTED
     private BigDecimal price; // 0.00 means free
     private String currency; // e.g., USD
     private String visibility; // PUBLIC, ENROLLED, ROLE_BASED
     private String visibleRole; // ADMIN, TEACHER, USER (nullable)
+
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
 
+    // Example: OneToMany for assignments/quizzes/discussions (optional, can be
+    // added later)
+
+    // Getters and setters
     public Integer getId() {
         return id;
     }

@@ -15,4 +15,7 @@
 
     <select id="selectByUser" resultMap="EnrollmentResult"> SELECT * FROM enrollments WHERE
         user_id=#{userId} ORDER BY enrolled_at DESC </select>
+
+    <select id="selectByCourse" resultMap="EnrollmentResult"> SELECT * FROM enrollments WHERE
+        course_id=#{courseId} ORDER BY enrolled_at DESC </select>
 </mapper>

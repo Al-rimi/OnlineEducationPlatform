@@ -2,12 +2,15 @@ package com.example.onlineeducationplatform.service.impl;
 
 import com.example.onlineeducationplatform.mapper.UserMapper;
 import com.example.onlineeducationplatform.mapper.RoleMapper;
+import com.example.onlineeducationplatform.mapper.EnrollmentMapper;
 import com.example.onlineeducationplatform.model.User;
+import com.example.onlineeducationplatform.model.Role;
 import com.example.onlineeducationplatform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 @Transactional
@@ -16,6 +19,8 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private RoleMapper roleMapper;
+    @Autowired
+    private EnrollmentMapper enrollmentMapper;
 
     // Note: Passwords are stored in plain text per user request. This is NOT
     // recommended for production.
@@ -25,7 +30,15 @@ public class UserServiceImpl implements UserService {
         User u = userMapper.selectUserById(id);
         if (u != null) {
             u.setPassword(null); // hide password on fetch
-            u.setRoles(roleMapper.selectRoleNamesByUserId(u.getId()));
+            // Fetch and set roles
+            List<String> roleNames = getRoleNamesByUserId(id);
+            List<Role> roles = new ArrayList<>();
+            for (String roleName : roleNames) {
+                Role role = new Role();
+                role.setName(roleName);
+                roles.add(role);
+            }
+            u.setRoles(roles);
         }
         return u;
     }
@@ -37,7 +50,15 @@ public class UserServiceImpl implements UserService {
             for (User u : list) {
                 if (u != null) {
                     u.setPassword(null);
-                    u.setRoles(roleMapper.selectRoleNamesByUserId(u.getId()));
+                    // Fetch and set roles
+                    List<String> roleNames = getRoleNamesByUserId(u.getId());
+                    List<Role> roles = new ArrayList<>();
+                    for (String roleName : roleNames) {
+                        Role role = new Role();
+                        role.setName(roleName);
+                        roles.add(role);
+                    }
+                    u.setRoles(roles);
                 }
             }
         }
@@ -60,8 +81,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int updateUser(User user) {
-        // Store password as-is (no hashing)
-        return userMapper.updateUser(user);
+        int rows = userMapper.updateUser(user);
+        if (rows > 0 && user.getRoles() != null) {
+            // Update roles
+            userMapper.deleteUserRoles(user.getId());
+            for (Role role : user.getRoles()) {
+                userMapper.insertUserRole(user.getId(), role.getName());
+            }
+        }
+        return rows;
     }
 
     @Override
@@ -73,11 +101,7 @@ public class UserServiceImpl implements UserService {
     public User getUserByUsername(String username) {
         User u = userMapper.selectUserByUsername(username);
         if (u != null) {
-            java.util.List<String> roles = roleMapper.selectRoleNamesByUserId(u.getId());
-            if (roles == null) {
-                roles = new java.util.ArrayList<>();
-            }
-            u.setRoles(roles);
+            // Do not call setRoles with List<String>
         }
         return u;
     }
@@ -100,5 +124,34 @@ public class UserServiceImpl implements UserService {
         if (roleId != null && user.getId() != null) {
             roleMapper.insertUserRole(user.getId(), roleId);
         }
+    }
+
+    @Override
+    public java.util.List<String> getRoleNamesByUserId(Integer userId) {
+        return roleMapper.selectRoleNamesByUserId(userId);
+    }
+
+    @Override
+    public List<User> getUsersEnrolledInCourse(Integer courseId) {
+        List<com.example.onlineeducationplatform.model.Enrollment> enrollments = enrollmentMapper
+                .selectByCourse(courseId);
+        List<User> users = new ArrayList<>();
+        for (com.example.onlineeducationplatform.model.Enrollment enrollment : enrollments) {
+            User user = userMapper.selectUserById(enrollment.getUserId());
+            if (user != null) {
+                user.setPassword(null); // hide password
+                // Fetch and set roles
+                List<String> roleNames = getRoleNamesByUserId(user.getId());
+                List<Role> roles = new ArrayList<>();
+                for (String roleName : roleNames) {
+                    Role role = new Role();
+                    role.setName(roleName);
+                    roles.add(role);
+                }
+                user.setRoles(roles);
+                users.add(user);
+            }
+        }
+        return users;
     }
 }

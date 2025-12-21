@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import org.springframework.lang.NonNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -90,7 +91,7 @@ public class MessageController {
     private RowMapper<Message> mapper() {
         return new RowMapper<Message>() {
             @Override
-            public Message mapRow(ResultSet rs, int rowNum) throws SQLException {
+            public Message mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
                 Message m = new Message();
                 m.setId(rs.getInt("id"));
                 m.setSenderId(rs.getInt("sender_id"));

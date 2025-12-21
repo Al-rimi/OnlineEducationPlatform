@@ -1,10 +1,17 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 
+@Entity
+@Table(name = "quiz_results")
 public class QuizResult {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "quiz_id")
     private Integer quizId;
+    @Column(name = "user_id")
     private Integer userId;
     private Integer score;
     private String answers;

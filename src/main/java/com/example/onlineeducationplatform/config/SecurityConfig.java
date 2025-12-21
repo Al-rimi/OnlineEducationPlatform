@@ -23,10 +23,16 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                .antMatchers("/", "/index.html", "/favicon.ico").permitAll()
+                .antMatchers("/", "/index.html", "/favicon.ico", "/favicon.svg", "/assets/**").permitAll()
+                // Frontend routes - allow all SPA routes
+                .antMatchers("/login", "/register", "/courses", "/courses/**", "/assignments", "/assignments/**",
+                        "/quizzes", "/quizzes/**", "/videos/**", "/profile", "/admin", "/teacher", "/student")
+                .permitAll()
                 .antMatchers("/api/users/login", "/api/users/register").permitAll()
                 // public read-only catalog endpoints
                 .antMatchers(org.springframework.http.HttpMethod.GET, "/api/categories/**").permitAll()
+                .antMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/enrolled").authenticated()
+                .antMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/my-courses").authenticated()
                 .antMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/**").permitAll()
                 .antMatchers(org.springframework.http.HttpMethod.GET, "/api/courses/*/videos").permitAll()
                 .antMatchers(org.springframework.http.HttpMethod.GET, "/api/videos/**").permitAll()

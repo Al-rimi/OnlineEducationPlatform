@@ -14,6 +14,8 @@ public interface CourseService {
 
     List<Course> getEnrolledCourses(Integer userId);
 
+    List<Course> getByTeacher(Integer teacherId);
+
     int create(Course course);
 
     int update(Course course);

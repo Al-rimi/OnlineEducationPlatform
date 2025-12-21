@@ -1,9 +1,15 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@Entity
+@Table(name = "videos")
 public class Video {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "course_id")
     private Integer courseId;
     private String title;
     private String videoUrl;

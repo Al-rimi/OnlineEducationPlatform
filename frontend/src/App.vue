@@ -8,13 +8,42 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute, RouterView } from 'vue-router';
 import AppShell from './layouts/AppShell.vue';
 import AuthShell from './layouts/AuthShell.vue';
 
 const route = useRoute();
 const layout = computed(() => route.meta.layout === 'auth' ? AuthShell : AppShell);
+
+// Token validation function
+function isTokenExpired(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    const currentTime = Date.now() / 1000;
+    return payload.exp < currentTime;
+  } catch (e) {
+    console.error('Token validation error:', e);
+    return true;
+  }
+}
+
+// Clear authentication data
+function clearAuthData() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+}
+
+// Validate stored token on app start
+onMounted(() => {
+  const token = localStorage.getItem('token');
+  if (token && isTokenExpired(token)) {
+    console.warn('Stored token is expired, clearing authentication data');
+    clearAuthData();
+  }
+});
 </script>
 
 <style>

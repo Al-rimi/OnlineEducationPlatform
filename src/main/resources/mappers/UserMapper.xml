@@ -24,4 +24,12 @@
         users SET username=#{username}, password=#{password}, email=#{email} WHERE id=#{id} </update>
 
     <delete id="deleteUser" parameterType="int"> DELETE FROM users WHERE id=#{id} </delete>
+
+    <insert id="insertUserRole">
+        INSERT INTO user_roles (user_id, role_id) VALUES (#{userId}, (SELECT id FROM roles WHERE name = #{roleName}))
+    </insert>
+
+    <delete id="deleteUserRoles" parameterType="int">
+        DELETE FROM user_roles WHERE user_id = #{userId}
+    </delete>
 </mapper>

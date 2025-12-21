@@ -1,11 +1,18 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
 import java.util.Date;
 import java.math.BigDecimal;
 
+@Entity
+@Table(name = "purchases")
 public class Purchase {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "user_id")
     private Integer userId;
+    @Column(name = "course_id")
     private Integer courseId;
     private BigDecimal amount;
     private String currency;

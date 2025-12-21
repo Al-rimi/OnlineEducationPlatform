@@ -1,8 +1,16 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "options")
 public class Option {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "question_id")
     private Integer questionId;
+    @Column(name = "option_text")
     private String optionText;
     private Boolean correct;
 

@@ -5,19 +5,19 @@
     
     <div class="dashboard-grid mb-4">
       <div class="stat-card">
-        <h3>{{ users.length }}</h3>
+        <h3>{{ stats.users || 0 }}</h3>
         <p>Total Users</p>
       </div>
       <div class="stat-card">
-        <h3>{{ courses.length }}</h3>
+        <h3>{{ stats.courses || 0 }}</h3>
         <p>Total Courses</p>
       </div>
       <div class="stat-card">
-        <h3>{{ videos.length }}</h3>
+        <h3>{{ stats.videos || 0 }}</h3>
         <p>Total Videos</p>
       </div>
       <div class="stat-card">
-        <h3>{{ enrollments.length }}</h3>
+        <h3>{{ stats.enrollments || 0 }}</h3>
         <p>Total Enrollments</p>
       </div>
     </div>
@@ -82,10 +82,12 @@
       <div class="card">
         <h3>Platform Overview</h3>
         <ul>
-          <li>Active Users: {{ users.length }}</li>
+          <li>Active Users: {{ stats.users || 0 }}</li>
           <li>Published Courses: {{ courses.filter(c => c.status === 'PUBLISHED').length }}</li>
-          <li>Total Videos: {{ videos.length }}</li>
-          <li>Student Enrollments: {{ enrollments.length }}</li>
+          <li>Total Videos: {{ stats.videos || 0 }}</li>
+          <li>Student Enrollments: {{ stats.enrollments || 0 }}</li>
+          <li>Assignments: {{ stats.assignments || 0 }}</li>
+          <li>Quizzes: {{ stats.quizzes || 0 }}</li>
         </ul>
       </div>
     </div>
@@ -93,38 +95,29 @@
 </template>
 <script setup>
 import { onMounted, ref } from 'vue';
-import { UsersApi, CoursesApi } from '../services/api';
+import { UsersApi, CoursesApi, StatsApi } from '../services/api';
 
 const me = ref(null);
 const users = ref([]);
 const courses = ref([]);
-const videos = ref([]);
-const enrollments = ref([]);
+const stats = ref({});
 const searchQuery = ref('');
 const searchType = ref('all');
 const searchResults = ref([]);
 
 onMounted(async () => {
   try {
-    me.value = (await UsersApi.me()).data;
-    const [uRes, cRes] = await Promise.all([
+    const [meRes, statsRes, usersRes, coursesRes] = await Promise.all([
+      UsersApi.me(),
+      StatsApi.get(),
       UsersApi.list(),
       CoursesApi.list()
     ]);
-    users.value = uRes.data || [];
-    courses.value = cRes.data || [];
     
-    // Calculate total videos and enrollments
-    let totalVideos = 0;
-    let totalEnrollments = 0;
-    for (const course of courses.value) {
-      // Assuming videos are fetched per course, but for simplicity, estimate or fetch
-      // For now, set to courses.length * 3 as example
-      totalVideos += 3; // placeholder
-      totalEnrollments += 5; // placeholder
-    }
-    videos.value = Array(totalVideos).fill({});
-    enrollments.value = Array(totalEnrollments).fill({});
+    me.value = meRes.data;
+    stats.value = statsRes.data;
+    users.value = usersRes.data || [];
+    courses.value = coursesRes.data || [];
   } catch (e) {
     console.error(e);
   }

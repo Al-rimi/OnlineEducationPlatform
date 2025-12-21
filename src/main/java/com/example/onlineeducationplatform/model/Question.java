@@ -1,8 +1,16 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "questions")
 public class Question {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "quiz_id")
     private Integer quizId;
+    @Column(name = "question_text")
     private String questionText;
 
     // Getters and setters

@@ -11,7 +11,7 @@ import java.util.Collections;
 public class JwtUtil {
     // In production, move to configuration and rotate regularly
     private static final String SECRET_KEY = "secretKey123456";
-    private static final long EXPIRATION_MS = 24 * 60 * 60 * 1000; // 1 day
+    private static final long EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
     public static String generateToken(String username, List<String> roles) {
         long nowMillis = System.currentTimeMillis();

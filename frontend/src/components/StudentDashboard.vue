@@ -1,57 +1,49 @@
 <template>
   <div class="container">
     <h1>Student Dashboard</h1>
-    <p class="mb-4">Welcome, {{ me?.username }}! Explore courses, complete assignments, and take quizzes.</p>
+    <p class="mb-4">Welcome, {{ me?.username }}! Here's your learning overview.</p>
     
     <div class="grid">
       <div class="card">
-        <h3>My Enrolled Courses</h3>
-        <div v-if="enrolled.length" class="grid">
-          <div v-for="c in enrolled" :key="c.id" class="card">
-            <h4>{{ c.title }}</h4>
-            <p>Progress: {{ getProgress(c.id) }}%</p>
-            <div class="btn-group">
-              <router-link :to="`/courses/${c.id}`" class="btn">View Course</router-link>
-              <button @click="viewAssignments(c.id)" class="btn secondary">Assignments</button>
-              <button @click="viewQuizzes(c.id)" class="btn secondary">Quizzes</button>
-            </div>
+        <h3>My Learning</h3>
+        <div class="stats">
+          <div class="stat">
+            <span class="number">{{ enrolled.length }}</span>
+            <span class="label">Enrolled Courses</span>
+          </div>
+          <div class="stat">
+            <span class="number">{{ pendingAssignments.length }}</span>
+            <span class="label">Pending Assignments</span>
+          </div>
+          <div class="stat">
+            <span class="number">{{ availableQuizzes.length }}</span>
+            <span class="label">Available Quizzes</span>
           </div>
         </div>
-        <p v-else>You haven't enrolled in any courses yet.</p>
-      </div>
-      
-      <div class="card">
-        <h3>Available Courses</h3>
-        <div v-if="courses.length" class="grid">
-          <div v-for="c in courses" :key="c.id" class="card" v-if="!isEnrolled(c.id)">
-            <h4>{{ c.title }}</h4>
-            <p>{{ c.description?.substring(0, 100) }}...</p>
-            <button @click="enrollInCourse(c.id)" class="btn">Enroll</button>
-          </div>
+        <div class="actions">
+          <router-link to="/courses" class="btn">Browse Courses</router-link>
+          <router-link to="/assignments" class="btn secondary">View Assignments</router-link>
         </div>
-        <p v-else>Loading courses...</p>
       </div>
       
       <div class="card">
-        <h3>Pending Assignments</h3>
-        <ul v-if="pendingAssignments.length">
-          <li v-for="a in pendingAssignments" :key="a.id">
-            {{ a.title }} - Due: {{ a.dueDate }}
-            <button @click="submitAssignment(a.id)" class="btn secondary">Submit</button>
-          </li>
+        <h3>Quick Actions</h3>
+        <ul class="action-list">
+          <li><router-link to="/courses">📚 Browse & Enroll in Courses</router-link></li>
+          <li><router-link to="/assignments">📝 Check Assignments</router-link></li>
+          <li><router-link to="/quizzes">🧠 Take Quizzes</router-link></li>
+          <li><router-link to="/profile">👤 Update Profile</router-link></li>
         </ul>
-        <p v-else>No pending assignments.</p>
       </div>
       
-      <div class="card">
-        <h3>Available Quizzes</h3>
-        <ul v-if="availableQuizzes.length">
-          <li v-for="q in availableQuizzes" :key="q.id">
-            {{ q.title }}
-            <button @click="takeQuiz(q.id)" class="btn secondary">Take Quiz</button>
+      <div class="card" v-if="enrolled.length > 0">
+        <h3>Recent Courses</h3>
+        <ul class="course-list">
+          <li v-for="c in enrolled.slice(0, 3)" :key="c?.id" v-if="c && c.id">
+            <router-link :to="`/courses/${c.id}`">{{ c.title }}</router-link>
           </li>
         </ul>
-        <p v-else>No quizzes available.</p>
+        <router-link to="/courses" class="view-all">View all courses →</router-link>
       </div>
     </div>
   </div>
@@ -73,33 +65,34 @@ onMounted(async () => {
   try {
     me.value = (await UsersApi.me()).data;
     const { data } = await CoursesApi.list();
-    courses.value = data;
+    courses.value = data.filter(c => c && c.id); // Filter out invalid courses
     const enrolledRes = await CoursesApi.enrolled();
-    enrolled.value = enrolledRes.data;
+    enrolled.value = enrolledRes.data.filter(c => c && c.id); // Filter out invalid enrolled courses
     // Load pending assignments and available quizzes
     await loadAssignmentsAndQuizzes();
   } catch (e) {
-    console.error(e);
+    console.error('Failed to load dashboard data:', e);
   }
 });
 
 async function loadAssignmentsAndQuizzes() {
   try {
     // Get assignments for enrolled courses
-    const assignmentPromises = enrolled.value.map(c => AssignmentsApi.byCourse(c.id));
+    const validEnrolledCourses = enrolled.value.filter(c => c && c.id);
+    const assignmentPromises = validEnrolledCourses.map(c => AssignmentsApi.byCourse(c.id));
     const assignmentResults = await Promise.all(assignmentPromises);
-    const allAssignments = assignmentResults.flatMap(res => res.data);
+    const allAssignments = assignmentResults.flatMap(res => res.data || []);
     // Filter pending assignments (not submitted yet)
-    pendingAssignments.value = allAssignments.filter(a => !a.submitted);
+    pendingAssignments.value = allAssignments.filter(a => a && !a.submitted);
     
     // Get quizzes for enrolled courses
-    const quizPromises = enrolled.value.map(c => QuizzesApi.byCourse(c.id));
+    const quizPromises = validEnrolledCourses.map(c => QuizzesApi.byCourse(c.id));
     const quizResults = await Promise.all(quizPromises);
-    const allQuizzes = quizResults.flatMap(res => res.data);
+    const allQuizzes = quizResults.flatMap(res => res.data || []);
     // Filter available quizzes (not taken yet)
-    availableQuizzes.value = allQuizzes.filter(q => !q.taken);
+    availableQuizzes.value = allQuizzes.filter(q => q && !q.taken);
   } catch (e) {
-    console.error(e);
+    console.error('Failed to load assignments and quizzes:', e);
   }
 }
 
@@ -108,14 +101,16 @@ function getProgress(courseId) {
 }
 
 function isEnrolled(courseId) {
-  return enrolled.value.some(c => c.id === courseId);
+  if (!courseId) return false;
+  return enrolled.value.some(c => c && c.id === courseId);
 }
 
 async function enrollInCourse(courseId) {
+  if (!courseId) return;
   try {
     await CoursesApi.enroll(courseId);
     const enrolledRes = await CoursesApi.enrolled();
-    enrolled.value = enrolledRes.data;
+    enrolled.value = enrolledRes.data.filter(c => c && c.id); // Filter out invalid enrolled courses
     await loadAssignmentsAndQuizzes();
   } catch (e) {
     console.error(e);
@@ -123,10 +118,12 @@ async function enrollInCourse(courseId) {
 }
 
 function viewAssignments(courseId) {
+  if (!courseId) return;
   router.push(`/courses/${courseId}/assignments`);
 }
 
 function viewQuizzes(courseId) {
+  if (!courseId) return;
   router.push(`/courses/${courseId}/quizzes`);
 }
 
@@ -158,20 +155,44 @@ function takeQuiz(quizId) {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.btn-group {
+.stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.number {
+  display: block;
+  font-size: 2em;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.label {
+  font-size: 0.9em;
+  color: #6b7280;
+}
+
+.actions {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  flex-wrap: wrap;
 }
 
 .btn {
-  padding: 8px 16px;
+  padding: 10px 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
   text-align: center;
+  font-weight: 500;
+  transition: background-color 0.2s;
 }
 
 .btn.secondary {
@@ -183,13 +204,52 @@ function takeQuiz(quizId) {
   opacity: 0.9;
 }
 
-ul {
+.action-list {
   list-style: none;
   padding: 0;
 }
 
-li {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+.action-list li {
+  margin-bottom: 10px;
+}
+
+.action-list a {
+  color: #2563eb;
+  text-decoration: none;
+  display: block;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.action-list a:hover {
+  background-color: #f3f4f6;
+}
+
+.course-list {
+  list-style: none;
+  padding: 0;
+}
+
+.course-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.course-list a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.view-all {
+  display: inline-block;
+  margin-top: 10px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.view-all:hover {
+  text-decoration: underline;
 }
 </style>

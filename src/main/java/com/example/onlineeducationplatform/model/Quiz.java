@@ -1,12 +1,23 @@
 package com.example.onlineeducationplatform.model;
 
-import java.sql.Timestamp;
+import javax.persistence.*;
+import java.util.Date;
 
+@Entity
+@Table(name = "quizzes")
 public class Quiz {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private Integer courseId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
     private String title;
-    private Timestamp createdAt;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date createdAt;
 
     // Getters and setters
     public Integer getId() {
@@ -17,12 +28,12 @@ public class Quiz {
         this.id = id;
     }
 
-    public Integer getCourseId() {
-        return courseId;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setCourseId(Integer courseId) {
-        this.courseId = courseId;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
     public String getTitle() {
@@ -33,11 +44,11 @@ public class Quiz {
         this.title = title;
     }
 
-    public Timestamp getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 }

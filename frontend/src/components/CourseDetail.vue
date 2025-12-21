@@ -30,6 +30,7 @@
       </form>
     </div>
   </section>
+  <p v-else-if="!loading">Course not found or access denied.</p>
   <p v-else>Loading...</p>
 </template>
 <script setup>
@@ -60,6 +61,8 @@ onMounted(async () => {
     course.value = cRes.data;
     videos.value = vRes.data || [];
     if (results[2]) me.value = results[2].data;
+  } catch (e) {
+    console.error('Failed to load course:', e);
   } finally { loading.value = false; }
 });
 

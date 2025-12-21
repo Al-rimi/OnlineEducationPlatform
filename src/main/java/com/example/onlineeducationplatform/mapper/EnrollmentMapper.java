@@ -12,4 +12,6 @@ public interface EnrollmentMapper {
     Enrollment select(@Param("userId") Integer userId, @Param("courseId") Integer courseId);
 
     List<Enrollment> selectByUser(@Param("userId") Integer userId);
+
+    List<Enrollment> selectByCourse(@Param("courseId") Integer courseId);
 }

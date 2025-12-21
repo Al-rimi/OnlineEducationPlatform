@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import org.springframework.lang.NonNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -99,7 +100,7 @@ public class DiscussionController {
     private RowMapper<Discussion> discussionMapper() {
         return new RowMapper<Discussion>() {
             @Override
-            public Discussion mapRow(ResultSet rs, int rowNum) throws SQLException {
+            public Discussion mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
                 Discussion d = new Discussion();
                 d.setId(rs.getInt("id"));
                 d.setCourseId(rs.getInt("course_id"));
@@ -115,7 +116,7 @@ public class DiscussionController {
     private RowMapper<DiscussionReply> replyMapper() {
         return new RowMapper<DiscussionReply>() {
             @Override
-            public DiscussionReply mapRow(ResultSet rs, int rowNum) throws SQLException {
+            public DiscussionReply mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
                 DiscussionReply r = new DiscussionReply();
                 r.setId(rs.getInt("id"));
                 r.setDiscussionId(rs.getInt("discussion_id"));

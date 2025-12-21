@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <h1>{{ courseId ? 'Course Assignments' : 'Assignments' }}</h1>
-    <div class="row mb-4" v-if="!courseId">
+    <div class="row mb-4" v-if="!courseId && canManage">
       <router-link to="/assignments/new" class="btn">Create New Assignment</router-link>
     </div>
     <div class="card">
@@ -20,8 +20,8 @@
             <td v-if="!courseId">{{ getCourseTitle(assignment.courseId) }}</td>
             <td>{{ assignment.dueDate }}</td>
             <td class="btn-group">
-              <router-link v-if="!courseId" :to="`/assignments/${assignment.id}/edit`" class="btn secondary">Edit</router-link>
-              <button v-if="!courseId" @click="deleteAssignment(assignment.id)" class="btn danger">Delete</button>
+              <router-link v-if="!courseId && canManage" :to="`/assignments/${assignment.id}/edit`" class="btn secondary">Edit</router-link>
+              <button v-if="!courseId && canManage" @click="deleteAssignment(assignment.id)" class="btn danger">Delete</button>
               <router-link :to="`/assignments/${assignment.id}/submit`" class="btn secondary">Submit</router-link>
             </td>
           </tr>
@@ -32,7 +32,7 @@
   </div>
 </template>
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { AssignmentsApi, CoursesApi } from '../services/api';
 import { useToast } from '../stores/toast';
@@ -48,6 +48,8 @@ const route = useRoute();
 const assignments = ref([]);
 const courses = ref([]);
 const toast = useToast();
+const me = ref(JSON.parse(localStorage.getItem('user') || '{}'));
+const canManage = computed(() => me.value.roles?.includes('ADMIN') || me.value.roles?.includes('TEACHER'));
 
 onMounted(async () => {
   try {

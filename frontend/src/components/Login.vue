@@ -33,6 +33,7 @@ async function login() {
   try {
     const { data } = await api.post('/api/users/login', { username: username.value, password: password.value });
     localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
     toast.success('Welcome back!');
     const redirect = route.query.redirect || '/';
     router.push(redirect);

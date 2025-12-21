@@ -30,7 +30,6 @@ public class StatsController {
         stats.put("messages", jdbcTemplate.queryForObject("SELECT COUNT(*) FROM messages", Integer.class));
         stats.put("discussions", jdbcTemplate.queryForObject("SELECT COUNT(*) FROM discussions", Integer.class));
         stats.put("enrollments", jdbcTemplate.queryForObject("SELECT COUNT(*) FROM enrollments", Integer.class));
-        stats.put("activity_log", jdbcTemplate.queryForObject("SELECT COUNT(*) FROM activity_log", Integer.class));
         return new ResponseEntity<>(stats, HttpStatus.OK);
     }
 }

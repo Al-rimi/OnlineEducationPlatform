@@ -26,6 +26,8 @@
         courses c INNER JOIN enrollments e ON c.id = e.course_id WHERE e.user_id = #{userId} UNION
         SELECT c.* FROM courses c INNER JOIN purchases p ON c.id = p.course_id WHERE p.user_id =
         #{userId} </select>
+    <select id="selectByTeacher" parameterType="int" resultMap="CourseResult">SELECT * FROM courses
+        WHERE created_by = #{teacherId} ORDER BY created_at DESC</select>
     <insert id="insert" parameterType="com.example.onlineeducationplatform.model.Course"
         useGeneratedKeys="true" keyProperty="id"> INSERT INTO courses( title, description,
         category_id, created_by, status, price, currency, visibility, visible_role ) VALUES (

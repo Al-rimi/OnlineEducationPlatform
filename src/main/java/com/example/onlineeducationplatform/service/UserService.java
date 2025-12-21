@@ -20,4 +20,10 @@ public interface UserService {
     boolean checkPassword(String rawPassword, String encodedPassword);
 
     void registerUser(User user);
+
+    // Added for role name retrieval
+    java.util.List<String> getRoleNamesByUserId(Integer userId);
+
+    // Get users enrolled in a course
+    List<User> getUsersEnrolledInCourse(Integer courseId);
 }

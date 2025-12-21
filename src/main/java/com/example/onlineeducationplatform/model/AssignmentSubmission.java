@@ -1,12 +1,20 @@
 package com.example.onlineeducationplatform.model;
 
+import javax.persistence.*;
 import java.sql.Timestamp;
 
+@Entity
+@Table(name = "assignment_submissions")
 public class AssignmentSubmission {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Column(name = "assignment_id")
     private Integer assignmentId;
+    @Column(name = "user_id")
     private Integer userId;
     private String content;
+    @Column(name = "file_url")
     private String fileUrl;
     private Timestamp submittedAt;
     private Integer grade;

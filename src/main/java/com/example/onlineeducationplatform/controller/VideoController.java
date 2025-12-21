@@ -108,8 +108,10 @@ public class VideoController {
     private boolean hasAnyRole(User u, String... roles) {
         if (u == null || u.getRoles() == null)
             return false;
+        java.util.Set<String> roleNames = u.getRoles().stream().map(role -> role.getName())
+                .collect(java.util.stream.Collectors.toSet());
         for (String r : roles) {
-            if (u.getRoles().contains(r))
+            if (roleNames.contains(r))
                 return true;
         }
         return false;
