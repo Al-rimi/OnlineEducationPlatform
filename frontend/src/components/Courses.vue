@@ -61,6 +61,8 @@ import { onMounted, ref, computed } from 'vue';
 import { CoursesApi, UsersApi } from '../services/api';
 import { useToast } from '../stores/toast';
 
+console.log('Courses component loaded');
+
 const courses = ref([]);
 const enrolledCourses = ref([]);
 const keyword = ref('');
@@ -72,20 +74,28 @@ const canCreate = computed(() => isAuthed.value && (me.value.roles?.includes('AD
 const canEnroll = computed(() => isAuthed.value && me.value.roles?.includes('STUDENT'));
 
 async function loadAll() {
+  console.log('Loading courses...');
   loading.value = true;
   try {
+    console.log('Calling CoursesApi.list()');
     const { data } = await CoursesApi.list();
+    console.log('Received data:', data);
     courses.value = data.filter(c => c && c.id) || [];
+    console.log('Filtered courses:', courses.value);
     
     // Load enrolled courses if user is authenticated
     if (isAuthed.value) {
       try {
+        console.log('Loading enrolled courses');
         const enrolledRes = await CoursesApi.enrolled();
         enrolledCourses.value = enrolledRes.data.filter(c => c && c.id) || [];
+        console.log('Enrolled courses:', enrolledCourses.value);
       } catch (e) {
         console.error('Failed to load enrolled courses:', e);
       }
     }
+  } catch (e) {
+    console.error('Failed to load courses:', e);
   } finally {
     loading.value = false;
   }

@@ -64,13 +64,16 @@ public class DataInitializer implements CommandLineRunner {
         jdbcTemplate.update(
                 "INSERT IGNORE INTO categories (name) VALUES ('Programming'), ('Web Development'), ('Data Science'), ('Design')");
 
-        // Seed courses
+        // Seed courses - assign to teacher (user_id = 2)
         jdbcTemplate.update(
-                "INSERT IGNORE INTO courses (title, description, category_id, status, price, currency, visibility) VALUES ('JavaScript Fundamentals', 'Learn the basics of JavaScript programming', 1, 'PUBLISHED', 0.00, 'USD', 'PUBLIC')");
+                "INSERT IGNORE INTO courses (title, description, category_id, status, price, currency, visibility, created_by) VALUES ('JavaScript Fundamentals', 'Learn the basics of JavaScript programming', 1, 'PUBLISHED', 0.00, 'USD', 'PUBLIC', 2)");
         jdbcTemplate.update(
-                "INSERT IGNORE INTO courses (title, description, category_id, status, price, currency, visibility) VALUES ('React for Beginners', 'Build modern web apps with React', 2, 'PUBLISHED', 0.00, 'USD', 'PUBLIC')");
+                "INSERT IGNORE INTO courses (title, description, category_id, status, price, currency, visibility, created_by) VALUES ('React for Beginners', 'Build modern web apps with React', 2, 'PUBLISHED', 0.00, 'USD', 'PUBLIC', 2)");
         jdbcTemplate.update(
-                "INSERT IGNORE INTO courses (title, description, category_id, status, price, currency, visibility) VALUES ('Python Data Analysis', 'Analyze data using Python and pandas', 3, 'PUBLISHED', 0.00, 'USD', 'PUBLIC')");
+                "INSERT IGNORE INTO courses (title, description, category_id, status, price, currency, visibility, created_by) VALUES ('Python Data Analysis', 'Analyze data using Python and pandas', 3, 'PUBLISHED', 0.00, 'USD', 'PUBLIC', 2)");
+
+        // Update existing courses to have created_by if null
+        jdbcTemplate.update("UPDATE courses SET created_by = 2 WHERE created_by IS NULL");
 
         // Seed videos
         jdbcTemplate.update(

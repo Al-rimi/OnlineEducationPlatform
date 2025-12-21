@@ -10,13 +10,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/courses")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CourseController {
+    private static final Logger logger = LoggerFactory.getLogger(CourseController.class);
     private final CourseService courseService;
     private final UserService userService;
 
@@ -27,7 +29,9 @@ public class CourseController {
 
     @GetMapping
     public List<Course> list() {
-        return courseService.getAll();
+        List<Course> courses = courseService.getAll();
+        logger.info("Returning {} courses for public list", courses.size());
+        return courses;
     }
 
     @GetMapping("/search")
@@ -49,9 +53,12 @@ public class CourseController {
     @GetMapping("/enrolled")
     public ResponseEntity<List<Course>> getEnrolled() {
         User current = getCurrentUser();
-        if (current == null)
+        if (current == null) {
+            logger.warn("getEnrolled: No authenticated user found");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
         List<Course> enrolled = courseService.getEnrolledCourses(current.getId());
+        logger.info("Returning {} enrolled courses for user {}", enrolled.size(), current.getUsername());
         return ResponseEntity.ok(enrolled);
     }
 
@@ -59,11 +66,17 @@ public class CourseController {
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<List<Course>> getMyCourses() {
         User current = getCurrentUser();
-        if (current == null)
+        logger.info("getMyCourses called by user: {}", current != null ? current.getUsername() : "null");
+        if (current == null) {
+            logger.warn("getMyCourses: current user is null");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        if (!hasAnyRole(current, "ADMIN", "TEACHER"))
+        }
+        if (!hasAnyRole(current, "ADMIN", "TEACHER")) {
+            logger.warn("getMyCourses: user {} does not have required role", current.getUsername());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         List<Course> courses = courseService.getByTeacher(current.getId());
+        logger.info("getMyCourses: returning {} courses for user {}", courses.size(), current.getUsername());
         return ResponseEntity.ok(courses);
     }
 
@@ -71,10 +84,15 @@ public class CourseController {
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
     public ResponseEntity<Course> create(@RequestBody Course course) {
         User current = getCurrentUser();
-        if (current == null)
+        if (current == null) {
+            logger.warn("create: No authenticated user found");
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        if (!hasAnyRole(current, "ADMIN", "TEACHER"))
+        }
+        if (!hasAnyRole(current, "ADMIN", "TEACHER")) {
+            logger.warn("create: User {} does not have required role", current.getUsername());
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        logger.info("Creating course by user {}", current.getUsername());
         // set defaults and ownership
         course.setCreatedBy(current.getId());
         if (course.getStatus() == null)
@@ -148,12 +166,11 @@ public class CourseController {
     }
 
     private boolean hasAnyRole(User u, String... roles) {
-        if (u == null || u.getRoles() == null)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || auth.getAuthorities() == null)
             return false;
-        Set<String> have = u.getRoles().stream().map(role -> role.getName())
-                .collect(java.util.stream.Collectors.toSet());
         for (String r : roles) {
-            if (have.contains(r))
+            if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_" + r)))
                 return true;
         }
         return false;

@@ -31,13 +31,18 @@ const toast = useToast();
 async function login() {
   error.value = '';
   try {
+    console.log('Logging in with', username.value, password.value);
     const { data } = await api.post('/api/users/login', { username: username.value, password: password.value });
+    console.log('Login response:', data);
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
+    console.log('Stored user:', localStorage.getItem('user'));
     toast.success('Welcome back!');
     const redirect = route.query.redirect || '/';
+    console.log('Redirecting to:', redirect);
     router.push(redirect);
   } catch (e) {
+    console.error('Login error:', e);
     error.value = 'Invalid credentials';
   }
 }

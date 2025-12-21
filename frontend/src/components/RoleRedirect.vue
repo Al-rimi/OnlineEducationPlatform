@@ -8,8 +8,13 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 onMounted(() => {
+  console.log('RoleRedirect: Starting redirect');
   const token = localStorage.getItem('token');
-  if (!token) {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  console.log('RoleRedirect: token exists:', !!token);
+  console.log('RoleRedirect: user:', user);
+  if (!token || !user.roles) {
+    console.log('RoleRedirect: No token or no user roles, redirecting to login');
     router.replace('/login');
     return;
   }
@@ -21,7 +26,7 @@ onMounted(() => {
     const payload = JSON.parse(atob(base64));
     const currentTime = Date.now() / 1000;
     
-    if (payload.exp < currentTime) {
+    if (payload.exp < currentTime) { // No buffer
       console.warn('Token expired during role redirect, clearing data');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -29,8 +34,10 @@ onMounted(() => {
       return;
     }
 
-    const roles = payload.roles || [];
+    const roles = user.roles || [];
+    console.log('RoleRedirect: user roles:', roles);
     const target = pickHome(roles);
+    console.log('RoleRedirect: redirecting to:', target);
     router.replace(target);
   } catch (e) {
     console.error('Token parsing error during role redirect:', e);

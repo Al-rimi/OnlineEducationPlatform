@@ -9,7 +9,7 @@ function isTokenExpired(token) {
     const payload = JSON.parse(atob(base64));
     const currentTime = Date.now() / 1000;
     // Add 10 minute buffer to account for time differences
-    return payload.exp < currentTime - 600;
+    return payload.exp < currentTime; // No buffer
   } catch (e) {
     console.error('Token validation error:', e);
     return true; // Consider invalid if we can't parse it
@@ -37,7 +37,7 @@ api.interceptors.request.use(cfg => {
       '/api/videos'
     ];
 
-    const isPublicEndpoint = publicEndpoints.some(endpoint => cfg.url.includes(endpoint)) && !cfg.url.includes('/enrolled') && !cfg.url.includes('/my-courses');
+    const isPublicEndpoint = cfg.method.toLowerCase() === 'get' && publicEndpoints.some(endpoint => cfg.url === endpoint);
 
     if (!isPublicEndpoint) {
       // Only validate token and add Authorization header for protected endpoints

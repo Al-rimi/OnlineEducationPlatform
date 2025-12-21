@@ -71,19 +71,40 @@ router.beforeEach((to, from, next) => {
       return next('/login');
     }
     try {
-      // JWT is base64url encoded, need to convert to base64 first
+      // Check token expiry
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const payload = JSON.parse(atob(base64));
-      const roles = payload.roles || [];
+      const currentTime = Date.now() / 1000;
+      if (payload.exp < currentTime) { // No buffer
+        toast.error('Session expired');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return next('/login');
+      }
+
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      let roles = user.roles || [];
+      if (!roles.length) {
+        // Fallback: parse roles from token
+        try {
+          const base64Url = token.split('.')[1];
+          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const payload = JSON.parse(atob(base64));
+          roles = payload.roles || [];
+        } catch (e) {
+          console.error('Fallback token parsing error:', e);
+        }
+      }
       if (!roles.includes(to.meta.requiresRole)) {
         toast.error('Access denied: Insufficient permissions');
-        return next('/');
+        return next('/login');
       }
     } catch (e) {
       console.error('Token parsing error:', e);
       toast.error('Invalid token');
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       return next('/login');
     }
   }

@@ -19,10 +19,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Autowired
     private UserService userService;
     @Autowired
@@ -130,11 +135,17 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<User> me() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || auth.getName() == null)
+        logger.info("/me called, authentication: {}", auth != null ? auth.getName() : "null");
+        if (auth == null || auth.getName() == null) {
+            logger.warn("/me: no authentication");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         User user = userService.getUserByUsername(auth.getName());
-        if (user == null)
+        logger.info("/me: found user: {}", user != null ? user.getUsername() : "null");
+        if (user == null) {
+            logger.warn("/me: user not found for username: {}", auth.getName());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         // hide password
         user.setPassword(null);
         return ResponseEntity.ok(user);
